@@ -3,9 +3,13 @@
 #include<string.h>
 #include<ctype.h>
 
-void validar_file(FILE *estoque);
+#define estoqueFIle "estoque.txt"
+#define tempEstoqueFile "estoqueTemporario.txt"
+
+void validar_file(FILE *estoque,char *file);
 int definir_operacao(FILE *estoque);
 void imprimir_estoque(FILE *estoque);
+void inserir_estoque(FILE *estoque);
 void ajustar_estoque(FILE *estoque);
 int retornar_quantidade_produto(FILE *estoque, char produto[100]);
 
@@ -13,15 +17,15 @@ int retornar_quantidade_produto(FILE *estoque, char produto[100]);
 int main(void){
     FILE *estoque;
 
-    definir_operacao(estoque);
+    while(definir_operacao(estoque) != 5){};
 
     return 0;
 }
 
-void validar_file(FILE *estoque){
+void validar_file(FILE *estoque,char *file){
     if (estoque == NULL)
     {
-        printf("Não fo possível abrir o arquivo estoque.txt");
+        printf("Não fo possível abrir o arquivo %s",file);
         exit(0);
     }
 };
@@ -34,6 +38,7 @@ int definir_operacao(FILE *estoque){
     printf("\n2 - Inserir item no estoque");
     printf("\n3 - Ajustar quantidade de um item");
     printf("\n4 - Remover item do estoque");
+    printf("\n5 - Encerrar sistema");
     printf("\nOperação a ser realizada -> ");
     
     scanf("%d",&escolha);
@@ -44,7 +49,7 @@ int definir_operacao(FILE *estoque){
             printf("Não implementado.");
             break;
         case 2:
-            printf("Não implementado.");
+            inserir_estoque(estoque);
             break;
         case 3:
             ajustar_estoque(estoque);
@@ -63,6 +68,24 @@ void imprimir_estoque(FILE *estoque){
     system("clear");
 }
 
+void inserir_estoque(FILE *estoque){
+    char produto[100];
+    int quantidade;
+
+    estoque = fopen(estoqueFIle,"w");
+    validar_file(estoque,estoqueFIle);
+    
+    printf("Informe o nome do produto:\n");
+    getchar();
+    fgets(produto, sizeof(produto), stdin);
+    printf("Informe a quantidade do produto:\n");
+    scanf("%d", &quantidade);
+    produto[strcspn(produto, "\n")] = '\0'; 
+    fprintf(estoque,"%s|%d",produto,quantidade);
+
+    fclose(estoque);
+};
+
 void ajustar_estoque(FILE *estoque){
     system("clear");
     FILE *tempEstoque;
@@ -71,7 +94,7 @@ void ajustar_estoque(FILE *estoque){
 
     while(quantidadeAntiga == -1){
         printf("Informe o nome do produto que você deseja ajustar o estoque:\n");
-        fgets(produto, sizeof(produto), stdin);
+        getchar();
         fgets(produto, sizeof(produto), stdin);
         
         quantidadeAntiga = retornar_quantidade_produto(estoque,produto);
@@ -82,16 +105,13 @@ void ajustar_estoque(FILE *estoque){
         else{
             printf("Produto não encontrado, digite o nome novamente\n", produto, quantidadeAntiga);
         };
-    }
-    estoque = fopen("estoque.txt","r");
-    validar_file(estoque);
+    };
 
-    tempEstoque = fopen("estoqueTemporario.txt", "w");
-    if (tempEstoque == NULL) {
-        printf("Erro ao abrir o arquivo temporário.\n");
-        fclose(estoque);
-        exit(1);
-    }
+    estoque = fopen(estoqueFIle,"r");
+    validar_file(estoque,estoqueFIle);
+
+    tempEstoque = fopen(tempEstoqueFile, "w");
+    validar_file(tempEstoque,tempEstoqueFile);
 
     printf("Informe a quantidade atual do produto:\n");
     scanf("%d", &quantidadeNova);
@@ -114,15 +134,15 @@ void ajustar_estoque(FILE *estoque){
     fclose(estoque);
     fclose(tempEstoque);
 
-    remove("estoque.txt");
-    rename("estoqueTemporario.txt", "estoque.txt");
+    remove(estoqueFIle);
+    rename(tempEstoqueFile, estoqueFIle);
 };
 
 int retornar_quantidade_produto(FILE *estoque, char produto[100]){
     int encontrado = 0, quantidadeEstoque = 0;
     char linhas[100], *produtoBusca;
-    estoque = fopen("estoque.txt","r");
-    validar_file(estoque);
+    estoque = fopen(estoqueFIle,"r");
+    validar_file(estoque,estoqueFIle);
     
     while (fgets(linhas, 100, estoque) != NULL) {
         produto[strcspn(produto, "\n")] = '\0'; 
