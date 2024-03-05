@@ -12,6 +12,7 @@ void imprimir_estoque(FILE *estoque);
 void inserir_estoque(FILE *estoque);
 void ajustar_estoque(FILE *estoque);
 int retornar_quantidade_produto(FILE *estoque, char produto[100]);
+void remover_estoque(FILE *estoque);
 
 
 int main(void){
@@ -46,7 +47,7 @@ int definir_operacao(FILE *estoque){
     switch (escolha)
     {
         case 1:
-            printf("Não implementado.");
+            imprimir_estoque(estoque);
             break;
         case 2:
             inserir_estoque(estoque);
@@ -66,6 +67,26 @@ int definir_operacao(FILE *estoque){
 
 void imprimir_estoque(FILE *estoque){
     system("clear");
+    char *linha, *linhaCopia, *produto;
+    int quantidade;
+
+    linha = malloc(150 * sizeof(char));
+    linhaCopia = malloc(150 * sizeof(char));
+
+    estoque = fopen(estoqueFIle,"r");
+    validar_file(estoque,estoqueFIle);    
+
+    while(fgets(linha,150,estoque) != NULL){        
+        strcpy(linhaCopia, linha);
+
+        produto = strtok(linhaCopia, "|");
+        quantidade = atoi(strtok(NULL, "|"));
+
+        printf("Produto %s -> %d\n",produto,quantidade);
+    }
+    fclose(estoque);
+    getchar();
+    getchar();
 }
 
 void inserir_estoque(FILE *estoque){
@@ -128,9 +149,10 @@ void ajustar_estoque(FILE *estoque){
                     fprintf(tempEstoque, "%s|%d\n", produto, quantidadeNova);
                 } else {
                     fprintf(tempEstoque, "%s", linhas);
-                }
-        }
-    }
+                };
+        };
+    };
+
     fclose(estoque);
     fclose(tempEstoque);
 
@@ -152,13 +174,48 @@ int retornar_quantidade_produto(FILE *estoque, char produto[100]){
             produtoBusca = strtok(NULL, "|");
             quantidadeEstoque = atoi(produtoBusca);
             break;
-        }
-    }
+        };
+    };
+    
     fclose(estoque);
 
     if (encontrado == 0) {
         return -1;
     } else {
         return quantidadeEstoque;
-    }
+    };
+}
+
+void remover_estoque(FILE *estoque){
+    system("clear");
+    FILE *tempEstoque;
+    char linhas[100], produto[100], *produtoBusca;
+
+    printf("Informe o nome do produto que você deseja remover do estoque:\n");
+    getchar();
+    fgets(produto, sizeof(produto), stdin);
+
+    estoque = fopen(estoqueFIle,"r");
+    validar_file(estoque,estoqueFIle);
+
+    tempEstoque = fopen(tempEstoqueFile, "w");
+    validar_file(tempEstoque,tempEstoqueFile);
+
+    while (fgets(linhas, 100, estoque) != NULL) {
+        char linhaCopia[100];
+        strcpy(linhaCopia, linhas);
+        produto[strcspn(produto, "\n")] = '\0'; 
+        produtoBusca = strtok(linhaCopia, "|");
+        if (produtoBusca != NULL) {
+                if (strcmp(produtoBusca, produto) != 0) {
+                    fprintf(tempEstoque, "%s", linhas);
+                };
+        };
+    };
+
+    fclose(estoque);
+    fclose(tempEstoque);
+
+    remove(estoqueFIle);
+    rename(tempEstoqueFile, estoqueFIle);
 }
