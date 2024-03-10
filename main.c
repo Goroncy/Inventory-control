@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include<ctype.h>
+#include<locale.h>
 
 #define estoqueFIle "estoque.txt"
 #define tempEstoqueFile "estoqueTemporario.txt"
@@ -17,9 +17,9 @@ void remover_estoque(FILE *estoque);
 
 int main(void){
     FILE *estoque;
-
+    
+    setlocale(LC_ALL, "");
     while(definir_operacao(estoque) != 5){};
-
     return 0;
 }
 
