@@ -26,14 +26,16 @@ int main(void){
 void validar_file(FILE *estoque,char *file){
     if (estoque == NULL)
     {
-        printf("Não fo possível abrir o arquivo %s",file);
+        printf("Não fo possível abrir o arquivo %s!\nVerifique se o arquivo estoque.txt se encontra na pasta e reinicie o programa.",file);
+        getchar();
+        getchar();
         exit(0);
     }
 };
 
 int definir_operacao(FILE *estoque){
     int escolha;
-
+    system("clear");
     printf("Escolha a operação a ser realizada:");
     printf("\n1 - Imprimir itens do estoque");
     printf("\n2 - Inserir item no estoque");
@@ -56,7 +58,7 @@ int definir_operacao(FILE *estoque){
             ajustar_estoque(estoque);
             break;
         case 4:
-            printf("Não implementado.");        
+            remover_estoque(estoque);
             break;
         default:
             break;
@@ -85,6 +87,8 @@ void imprimir_estoque(FILE *estoque){
         printf("Produto %s -> %d\n",produto,quantidade);
     }
     fclose(estoque);
+
+    printf("\nAperte qualquer tecla para retornar a tela inicial.");
     getchar();
     getchar();
 }
@@ -93,7 +97,8 @@ void inserir_estoque(FILE *estoque){
     char produto[100];
     int quantidade;
 
-    estoque = fopen(estoqueFIle,"w");
+    system("clear");
+    estoque = fopen(estoqueFIle,"a");
     validar_file(estoque,estoqueFIle);
     
     printf("Informe o nome do produto:\n");
@@ -102,9 +107,12 @@ void inserir_estoque(FILE *estoque){
     printf("Informe a quantidade do produto:\n");
     scanf("%d", &quantidade);
     produto[strcspn(produto, "\n")] = '\0'; 
-    fprintf(estoque,"%s|%d",produto,quantidade);
-
+    fprintf(estoque,"%s|%d\n",produto,quantidade);
     fclose(estoque);
+    printf("Aperte qualquer tecla para retornar a tela de opções.");
+    getchar();
+    getchar();
+    system("clear");
 };
 
 void ajustar_estoque(FILE *estoque){
@@ -144,8 +152,8 @@ void ajustar_estoque(FILE *estoque){
         produtoBusca = strtok(linhaCopia, "|");
         if (produtoBusca != NULL) {
                 if (strcmp(produtoBusca, produto) == 0) {
-                    produtoBusca = strtok(NULL, "|"); // Avança para o próximo token que é a quantidade
-                    quantidadeAntiga = atoi(produtoBusca); // Converte a quantidade antiga para inteiro
+                    produtoBusca = strtok(NULL, "|"); 
+                    quantidadeAntiga = atoi(produtoBusca);
                     fprintf(tempEstoque, "%s|%d\n", produto, quantidadeNova);
                 } else {
                     fprintf(tempEstoque, "%s", linhas);
@@ -158,6 +166,11 @@ void ajustar_estoque(FILE *estoque){
 
     remove(estoqueFIle);
     rename(tempEstoqueFile, estoqueFIle);
+
+    printf("Produto ajustado, aperte qualquer tecla para retornar a tela inicial.");
+    getchar();
+    getchar();
+    system("clear");
 };
 
 int retornar_quantidade_produto(FILE *estoque, char produto[100]){
@@ -218,4 +231,8 @@ void remover_estoque(FILE *estoque){
 
     remove(estoqueFIle);
     rename(tempEstoqueFile, estoqueFIle);
+    
+    printf("Produto removido do estoque, aperte qualquer tecla para retornar a tela inicial.");
+    getchar();
+    system("clear");
 }
